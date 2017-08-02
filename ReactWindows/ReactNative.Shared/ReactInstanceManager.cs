@@ -375,7 +375,7 @@ namespace ReactNative
                 foreach (var package in _packages)
                 {
                     allViewManagers.AddRange(
-                        package.CreateViewManagers(reactContext));
+                        package.CreateViewManagers(reactContext, new Uri(new Uri(SourceUrl), ".")));
                 }
 
                 return allViewManagers;

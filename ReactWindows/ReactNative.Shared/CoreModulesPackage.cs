@@ -83,7 +83,8 @@ namespace ReactNative
         }
 
         public IReadOnlyList<IViewManager> CreateViewManagers(
-            ReactContext reactContext)
+            ReactContext reactContext,
+            Uri sourceUri)
         {
             return new List<IViewManager>(0);
         }

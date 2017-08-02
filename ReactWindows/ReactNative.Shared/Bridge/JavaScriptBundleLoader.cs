@@ -91,7 +91,11 @@ namespace ReactNative.Bridge
 #if WINDOWS_UWP
             public override async Task InitializeAsync()
             {
-                var storageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(SourceUrl)).AsTask().ConfigureAwait(false);
+                StorageFile storageFile;
+                if (SourceUrl.StartsWith("ms-appx://") || SourceUrl.StartsWith("ms-appdata://"))
+                    storageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(SourceUrl)).AsTask().ConfigureAwait(false);
+                else
+                    storageFile = await StorageFile.GetFileFromPathAsync(SourceUrl).AsTask().ConfigureAwait(false);
                 _script = storageFile.Path;
             }
 #else

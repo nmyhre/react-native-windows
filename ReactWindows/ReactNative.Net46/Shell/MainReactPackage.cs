@@ -73,14 +73,16 @@ namespace ReactNative.Shell
         /// the <see cref="UIManagerModule"/>.
         /// </summary>
         /// <param name="reactContext">The React application context.</param>
+        /// <param name="sourceUri">The base uri to be used when loading images.</param>
         /// <returns>The list of view managers.</returns>
         public IReadOnlyList<IViewManager> CreateViewManagers(
-            ReactContext reactContext)
+            ReactContext reactContext,
+            Uri sourceUri)
         {
             return new List<IViewManager>
             {
                 //new ReactFlipViewManager(),
-                new ReactImageManager(),
+                new ReactImageManager(sourceUri),
                 new ReactProgressBarViewManager(),
                 //new ReactProgressRingViewManager(),
                 new ReactPickerManager(),

@@ -21,6 +21,16 @@ namespace ReactNative.Modules.Image
 
             return uri.StartsWith("data:");
         }
+        public static bool IsLocalUri(Uri uri)
+        {
+            if (uri == null)
+            {
+                throw new ArgumentNullException(nameof(uri));
+            }
+
+            var file = new FileInfo(uri.AbsolutePath);
+            return file.Exists;
+        }
 
         public static Stream GetStreamAsync(string uri)
         {

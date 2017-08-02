@@ -25,6 +25,17 @@ namespace ReactNative.Views.Image
         private readonly Dictionary<int, List<KeyValuePair<string, double>>> _imageSources =
             new Dictionary<int, List<KeyValuePair<string, double>>>();
 
+        private Uri SourceUri { get; set; }
+
+        ///<Summary>
+        /// Construct an image manager with a source url
+        ///</Summary>
+        ///
+        public ReactImageManager(Uri sourceuri) : base()
+        {
+            SourceUri = sourceuri;
+        }
+
         /// <summary>
         /// The view manager name.
         /// </summary>
@@ -317,6 +328,15 @@ namespace ReactNative.Views.Image
                 {
                     OnImageFailed(view);
                 }
+            }
+            else if (BitmapImageHelpers.IsLocalUri(new Uri(SourceUri, source)))
+            {
+                var image = new BitmapImage();
+                disposable.Disposable = image.GetUriLoadObservable().Subscribe(
+                    status => OnImageStatusUpdate(view, status.LoadStatus, status.Metadata),
+                    _ => OnImageFailed(view));
+                image.UriSource = new Uri(SourceUri, source);
+                imageBrush.ImageSource = image;
             }
             else
             {

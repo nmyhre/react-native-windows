@@ -34,6 +34,17 @@ namespace ReactNative.Modules.Image
             return uri.StartsWith("http:") || uri.StartsWith("https:");
         }
 
+        public static bool IsLocalUri(Uri uri)
+        {
+            if (uri == null)
+            {
+                throw new ArgumentNullException(nameof(uri));
+            }
+
+            var file = new FileInfo(uri.AbsolutePath);
+            return file.Exists;
+        }
+
         public static async Task<IRandomAccessStream> GetStreamAsync(string uri)
         {
             if (uri == null)

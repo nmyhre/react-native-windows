@@ -49,7 +49,8 @@ namespace ReactNative.Modules.Core
         /// the <see cref="UIManagerModule"/>.
         /// </summary>
         /// <param name="reactContext">The React application context.</param>
+        /// <param name="sourceUri">Base url for images.</param>
         /// <returns>The list of view managers.</returns>
-        IReadOnlyList<IViewManager> CreateViewManagers(ReactContext reactContext);
+        IReadOnlyList<IViewManager> CreateViewManagers(ReactContext reactContext, Uri sourceUri);
     }
 }
