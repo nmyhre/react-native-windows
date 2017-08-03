@@ -31,7 +31,6 @@ namespace ReactNative
             // The react context is created and re-created in the background on a private async
             // that we cannot wait on, instead we must use event handling to inform when it is complete
             _reactInstanceManager.ReactContextInitialized += OnReactContextInitialized;
-            _reactInstanceManager.ReactContextInitialized += OnReactContextInitialized;
             RootView = CreateRootView();
             Content = RootView;
         }
