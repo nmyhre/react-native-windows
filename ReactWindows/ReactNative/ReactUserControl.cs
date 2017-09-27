@@ -20,7 +20,7 @@ namespace ReactNative
     /// <typeparam name="T">The native module object model type.</typeparam>
     public abstract class ReactUserControl<T> : UserControl, Bridge.IAsyncDisposable where T : ReactContextNativeModuleBase, new()
     {
-        private IReactInstanceManager _reactInstanceManager;
+        private ReactInstanceManager _reactInstanceManager;
 
         private bool _isShiftKeyDown;
         private bool _isControlKeyDown;
@@ -249,12 +249,12 @@ namespace ReactNative
             }
         }
 
-        private IReactInstanceManager CreateReactInstanceManager()
+        private ReactInstanceManager CreateReactInstanceManager()
         {
-            var builder = new ReactInstanceManager.Builder
+            var builder = new ReactInstanceManagerBuilder
             {
                 UseDeveloperSupport = UseDeveloperSupport,
-                InitialLifecycleState = LifecycleState.Resumed,
+                InitialLifecycleState = Common.LifecycleState.BeforeCreate,
                 JavaScriptBundleFile = JavaScriptBundleFile,
                 JavaScriptMainModuleName = JavaScriptMainModuleName,
                 JavaScriptExecutorFactory = JavaScriptExecutorFactory,

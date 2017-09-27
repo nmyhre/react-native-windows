@@ -73,7 +73,7 @@ namespace ReactNative.Shell
         /// <returns>The list of view managers.</returns>
         public IReadOnlyList<IViewManager> CreateViewManagers(
             ReactContext reactContext,
-            Uri sourceUri)
+            System.Uri sourceUri)
         {
             return new List<IViewManager>
             {
