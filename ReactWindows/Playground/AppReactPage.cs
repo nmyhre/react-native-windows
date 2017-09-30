@@ -1,11 +1,26 @@
-﻿using ReactNative;
+using ReactNative;
+using ReactNative.Bridge;
 using ReactNative.Modules.Core;
 using ReactNative.Shell;
 using System.Collections.Generic;
 
 namespace Playground
 {
-    class AppReactPage : ReactPage
+    internal class ReactControlObjectModel : UserControlNativeObjectModel<string>
+    {
+        public ReactControlObjectModel() : base(null) { }
+
+        public ReactControlObjectModel(ReactContext reactContext) : base(reactContext) { }
+#pragma warning disable 1998
+        [ReactMethod]
+        public override async void GetData(IPromise promise)
+        {
+            base.GetData(promise);
+        }
+#pragma warning restore 1998
+    }
+
+    class AppReactPage : ReactUserControl<ReactControlObjectModel>
     {
         public override string MainComponentName
         {
