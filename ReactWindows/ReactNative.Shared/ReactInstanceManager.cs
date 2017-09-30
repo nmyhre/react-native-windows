@@ -38,7 +38,7 @@ namespace ReactNative
 
         private readonly object _lifecycleStateLock = new object();
 
-        private readonly string _jsBundleFile;
+        private string _jsBundleFile;
         private readonly string _jsMainModuleName;
         private readonly IReadOnlyList<IReactPackage> _packages;
         private readonly IDevSupportManager _devSupportManager;
@@ -191,6 +191,13 @@ namespace ReactNative
         {
             await RecreateReactContextInBackgroundAsync().ConfigureAwait(false);
         }
+
+        public async void RecreateReactContextInBackground(string jsBundleFile)
+        {
+            _jsBundleFile = jsBundleFile;
+            RecreateReactContextInBackground();
+        }
+
 
         /// <summary>
         /// Recreate the React application and context. This should be called

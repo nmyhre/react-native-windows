@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using ReactNative.Bridge;
 using ReactNative.Modules.Core;
 using ReactNative.Shell;
@@ -41,9 +41,12 @@ namespace ReactNative
         private void CreateNewInstance()
         {
             _reactInstanceManager = CreateReactInstanceManager();
+
             // The react context is created and re-created in the background on a private async
             // that we cannot wait on, instead we must use event handling to informed when it is complete
             _reactInstanceManager.ReactContextInitialized += OnReactContextInitialized;
+            OnResume(() => { });
+
             RootView = CreateRootView();
             Content = RootView;
         }
@@ -165,17 +168,14 @@ namespace ReactNative
         /// </summary>
         public async Task OnNewReactBundle()
         {
-            // Reset react to point to a new bundle
-            Content = null;
-            RootView = null;
-            await _reactInstanceManager.DisposeAsync();
-            _reactInstanceManager = null;
-            NativePackage = null;
+            OnSuspend();
 
-            CreateNewInstance();
+            if (JavaScriptBundleFile != null)
+            {
+                _reactInstanceManager.RecreateReactContextInBackground(JavaScriptBundleFile);
+            }
 
-            Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated -= OnAcceleratorKeyActivated;
-            OnCreate(null);
+            OnResume(() => { });
         }
 
         /// <summary>
