@@ -1,4 +1,4 @@
-﻿using ImagePipeline.Core;
+using ImagePipeline.Core;
 using ImagePipeline.Request;
 using Newtonsoft.Json.Linq;
 using ReactNative.Collections;
@@ -283,15 +283,16 @@ namespace ReactNative.Views.Image
             {
                 var imagePipeline = ImagePipelineFactory.Instance.GetImagePipeline();
                 var image = default(BitmapSource);
-                var uri = new Uri(source);
 
                 // Remote images
                 if (source.StartsWith("http:") || source.StartsWith("https:"))
                 {
+                    var uri = new Uri(source);
                     image = await imagePipeline.FetchEncodedBitmapImageAsync(uri);                   
                 }
                 else // Base64 or local images
                 {
+                    var uri = new Uri(SourceUri, source);
                     image = await imagePipeline.FetchDecodedBitmapImageAsync(ImageRequest.FromUri(uri));
                 }
 

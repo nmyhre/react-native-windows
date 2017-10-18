@@ -38,6 +38,17 @@ namespace ReactNative
             CreateNewInstance();
         }
 
+        /// <summary>
+        /// Returns React Native version targeted with this native module.
+        /// </summary>
+        public static string ReactNativeVersionTargeted
+        {
+            get
+            {
+                return "0.48.0";
+            }
+        }
+
         private void CreateNewInstance()
         {
             _reactInstanceManager = CreateReactInstanceManager();
