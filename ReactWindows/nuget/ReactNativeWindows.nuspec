@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ReactNativeWindows</id>
-    <version>1.0.4</version>
+    <version>1.0.14</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
