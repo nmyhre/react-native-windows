@@ -5,6 +5,7 @@ using ReactNative.UIManager;
 using ReactNative.UIManager.Annotations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
@@ -306,10 +307,8 @@ namespace ReactNative.Views.Image
                     status => OnImageStatusUpdate(view, status),
                     _ => OnImageFailed(view));
 
-                using (var stream = BitmapImageHelpers.GetStreamAsync(source))
-                {
-                    image.StreamSource = stream;
-                }
+                var stream = BitmapImageHelpers.GetStreamAsync(source);
+                image.StreamSource = stream;
             }
             else if (BitmapImageHelpers.IsLocalUri(new Uri(SourceUri, source)))
             {
