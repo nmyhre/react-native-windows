@@ -4,6 +4,7 @@ using ReactNative.Modules.Core;
 using ReactNative.Shell;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
@@ -45,7 +46,7 @@ namespace ReactNative
         {
             get
             {
-                return "0.48.0";
+                return "0.50.0";
             }
         }
 
@@ -55,7 +56,7 @@ namespace ReactNative
 
             // The react context is created and re-created in the background on a private async
             // that we cannot wait on, instead we must use event handling to informed when it is complete
-            _reactInstanceManager.ReactContextInitialized += OnReactContextInitialized;
+            //_reactInstanceManager.ReactContextInitialized += OnReactContextInitialized;
             OnResume(() => { });
 
             RootView = CreateRootView();
@@ -67,9 +68,9 @@ namespace ReactNative
         /// </summary>
         /// <param name="sender">The origin of the event.</param>
         /// <param name="e">The arguments for the event of type <see cref="ReactContextInitializedEventArgs"/>.</param>
-        protected virtual void OnReactContextInitialized(object sender, ReactContextInitializedEventArgs e)
-        {
-        }
+        //protected virtual void OnReactContextInitialized(object sender, ReactContextInitializedEventArgs e)
+        //{
+        //}
 
         /// <summary>
         /// The custom path of the bundle file.
@@ -236,7 +237,7 @@ namespace ReactNative
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs e)
+        private async void OnAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs e)
         {
             if (_reactInstanceManager.DevSupportManager.IsEnabled)
             {
@@ -255,7 +256,7 @@ namespace ReactNative
                 }
                 else if (e.EventType == CoreAcceleratorKeyEventType.KeyUp && _isControlKeyDown && e.VirtualKey == VirtualKey.R)
                 {
-                    _reactInstanceManager.DevSupportManager.HandleReloadJavaScript();
+                    await _reactInstanceManager.DevSupportManager.CreateReactContextFromPackagerAsync(CancellationToken.None).ConfigureAwait(false);
                 }
             }
         }

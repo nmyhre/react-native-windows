@@ -192,8 +192,8 @@ namespace ReactNative
 
         public async void RecreateReactContextInBackground(string jsBundleFile)
         {
-            _jsBundleFile = jsBundleFile;
-            RecreateReactContextInBackground();
+            //_jsBundleFile = jsBundleFile;
+            //RecreateReactContextInBackground();
         }
 
 

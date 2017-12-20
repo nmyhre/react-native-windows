@@ -95,7 +95,7 @@ namespace ReactNative.Bridge
             {
                 StorageFile storageFile;
                 if (SourceUrl.StartsWith("ms-appx://") || SourceUrl.StartsWith("ms-appdata://"))
-                    var storageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(SourceUrl)).AsTask(token).ConfigureAwait(false);
+                    storageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(SourceUrl)).AsTask(token).ConfigureAwait(false);
                 else
                     storageFile = await StorageFile.GetFileFromPathAsync(SourceUrl).AsTask().ConfigureAwait(false);
                 _script = storageFile.Path;
