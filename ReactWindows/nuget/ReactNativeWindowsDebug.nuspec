@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ReactNativeWindowsDebug</id>
-    <version>1.0.15</version>
+    <version>1.0.17</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
