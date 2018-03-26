@@ -324,7 +324,7 @@ namespace ReactNative.Views.Image
         /// <param name="view">The image view instance.</param>
         private void SetUriFromMultipleSources(Border view)
         {
-            if (_imageSources.TryGetValue(view.GetTag(), out var sources))
+            if (_imageSources.Count > 0 && _imageSources.TryGetValue(view.GetTag(), out var sources))
             {
                 var targetImageSize = view.Width * view.Height;
                 var bestResult = sources.LocalMin((s) => Math.Abs(s.Value - targetImageSize));
