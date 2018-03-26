@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ReactNativeWindowsDebug</id>
-    <version>1.0.18</version>
+    <version>1.0.21</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -21,6 +21,11 @@
     <file src="..\x64\debug\ChakraBridge\ChakraBridge.pdb" target="runtimes\win10-x64\native"/>
     <file src="..\x64\debug\ChakraBridge\ChakraBridge.winmd" target="lib\uap10.0"/>
 
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.dll" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.lib" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.pri" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.pdb" target="runtimes\win10-x64\native"/>
+    
     <file src="..\ReactNative\bin\x64\debug\ReactNative.dll" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\debug\ReactNative.pdb" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\debug\ReactNative.pri" target="lib\uap10.0"/>
