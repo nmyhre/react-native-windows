@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ReactNativeWindows</id>
-    <version>1.0.21</version>
+    <version>1.0.22</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -32,6 +32,9 @@
     <file src="..\ReactNative\bin\x64\release\ReactNative.xml" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative.xr.xml" target="lib\uap10.0\ReactNative"/>
     <file src="..\ReactNative\Tracing\LoggingActivityBuilderExtensions.tt" target="lib\uap10.0\ReactNative\Tracing\LoggingActivityBuilderExtensions.tt"/>
+    <file src="..\ReactNative\bin\x64\release\DevSupport\DevOptionDialog.xbf" target="lib\uap10.0\ReactNative\DevSupport\DevOptionDialog.xbf"/>
+    <file src="..\ReactNative\bin\x64\release\DevSupport\ProgressDialog.xbf" target="lib\uap10.0\ReactNative\DevSupport\ProgressDialog.xbf"/>
+    <file src="..\ReactNative\bin\x64\release\DevSupport\RedBoxDialog.xbf" target="lib\uap10.0\ReactNative\DevSupport\RedBoxDialog.xbf"/>
 
     <file src="..\ReactNative\bin\x64\release\ReactNativeWebViewBridge.pdb" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNativeWebViewBridge.pri" target="lib\uap10.0"/>

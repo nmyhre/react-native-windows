@@ -399,6 +399,17 @@ namespace ReactNative.Views.TextInput
         }
 
         /// <summary>
+        /// Enables text wrapping on the view (aka multiline) <see cref="ReactTextBox"/>.
+        /// </summary>
+        /// <param name="view">The view instance.</param>
+        /// <param name="wrapText">The multiline flag.</param>
+        [ReactProp("wrapText", DefaultBoolean = false)]
+        public void SetWrapText(ReactTextBox view, bool wrapText)
+        {
+            view.TextWrapping = wrapText ? TextWrapping.Wrap : TextWrapping.NoWrap;
+        }
+
+        /// <summary>
         /// Sets whether to enable the <see cref="ReactTextBox"/> to autogrow.
         /// </summary>
         /// <param name="view">The view instance.</param>
@@ -731,7 +742,10 @@ namespace ReactNative.Views.TextInput
             {
                 if (!textBox.AcceptsReturn)
                 {
-                    e.Handled = true;
+                    // eat the return only if there is no wrapping turned on,
+                    // if there is wrapping we let the control handle it
+                    if (textBox.TextWrapping == TextWrapping.NoWrap)
+                        e.Handled = true;
                     textBox.GetReactContext()
                         .GetNativeModule<UIManagerModule>()
                         .EventDispatcher
