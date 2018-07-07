@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Data;
 
 namespace ReactNative.DevSupport
 {
-    class SourceInfoVisibilityConverter : IValueConverter
+    public class SourceInfoVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
