@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ReactNativeWindows</id>
-    <version>1.0.25</version>
+    <version>1.0.28</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -18,23 +18,19 @@
     <file src="..\x64\release\ChakraBridge\ChakraBridge.dll" target="runtimes\win10-x64\native"/>
     <file src="..\x64\release\ChakraBridge\ChakraBridge.lib" target="runtimes\win10-x64\native"/>
     <file src="..\x64\release\ChakraBridge\ChakraBridge.pri" target="runtimes\win10-x64\native"/>
-    <file src="..\x64\release\ChakraBridge\ChakraBridge.pdb" target="runtimes\win10-x64\native"/>
     <file src="..\x64\release\ChakraBridge\ChakraBridge.winmd" target="lib\uap10.0"/>
 
     <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Release\yoga.dll" target="runtimes\win10-x64\native"/>
     <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Release\yoga.lib" target="runtimes\win10-x64\native"/>
     <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Release\yoga.pri" target="runtimes\win10-x64\native"/>
-    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Release\yoga.pdb" target="runtimes\win10-x64\native"/>
 
     <file src="..\ReactNative\bin\x64\release\ReactNative.dll" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\release\ReactNative.pdb" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative.pri" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative.xml" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative\ReactNative.xr.xml" target="lib\uap10.0\ReactNative"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative\DevSupport\*" target="lib\uap10.0\ReactNative\DevSupport"/>
     <file src="..\ReactNative\bin\x64\release\ReactNative\Tracing\*" target="lib\uap10.0\ReactNative\Tracing"/>
 
-    <file src="..\ReactNative\bin\x64\release\ReactNativeWebViewBridge.pdb" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNativeWebViewBridge.pri" target="lib\uap10.0"/>
     <file src="..\ReactNative\bin\x64\release\ReactNativeWebViewBridge.winmd" target="lib\uap10.0"/>
   </files>
