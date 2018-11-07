@@ -2,11 +2,11 @@
 <package >
   <metadata>
     <id>ReactNativeWindowsDebug</id>
-    <version>1.0.28</version>
+    <version>1.0.29</version>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>React Native Windows XAML user control, $configuration$</description>
+    <description>React Native Windows XAML user control, debug</description>
     <dependencies>
       <dependency id="fresco.imagepipeline" version="0.1.5" />
       <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.0.6" />
@@ -15,27 +15,27 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\x64\$configuration$\ChakraBridge\ChakraBridge.dll" target="runtimes\win10-x64\native"/>
-    <file src="..\x64\$configuration$\ChakraBridge\ChakraBridge.lib" target="runtimes\win10-x64\native"/>
-    <file src="..\x64\$configuration$\ChakraBridge\ChakraBridge.pri" target="runtimes\win10-x64\native"/>
-    <file src="..\x64\$configuration$\ChakraBridge\ChakraBridge.pdb" target="runtimes\win10-x64\native"/>
-    <file src="..\x64\$configuration$\ChakraBridge\ChakraBridge.winmd" target="lib\uap10.0"/>
+    <file src="..\x64\Debug\ChakraBridge\ChakraBridge.dll" target="runtimes\win10-x64\native"/>
+    <file src="..\x64\Debug\ChakraBridge\ChakraBridge.lib" target="runtimes\win10-x64\native"/>
+    <file src="..\x64\Debug\ChakraBridge\ChakraBridge.pri" target="runtimes\win10-x64\native"/>
+    <file src="..\x64\Debug\ChakraBridge\ChakraBridge.pdb" target="runtimes\win10-x64\native"/>
+    <file src="..\x64\Debug\ChakraBridge\ChakraBridge.winmd" target="lib\uap10.0"/>
 
-    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\$configuration$\yoga.dll" target="runtimes\win10-x64\native"/>
-    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\$configuration$\yoga.lib" target="runtimes\win10-x64\native"/>
-    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\$configuration$\yoga.pri" target="runtimes\win10-x64\native"/>
-    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\$configuration$\yoga.pdb" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.dll" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.lib" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.pri" target="runtimes\win10-x64\native"/>
+    <file src="..\..\Yoga\csharp\Yoga\bin\Universal\x64\Debug\yoga.pdb" target="runtimes\win10-x64\native"/>
     
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative.dll" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative.pdb" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative.pri" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative.xml" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative\ReactNative.xr.xml" target="lib\uap10.0\ReactNative"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative\DevSupport\*" target="lib\uap10.0\ReactNative\DevSupport"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNative\Tracing\*" target="lib\uap10.0\ReactNative\Tracing"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative.dll" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative.pdb" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative.pri" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative.xml" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative\ReactNative.xr.xml" target="lib\uap10.0\ReactNative"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative\DevSupport\*" target="lib\uap10.0\ReactNative\DevSupport"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNative\Tracing\*" target="lib\uap10.0\ReactNative\Tracing"/>
 
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNativeWebViewBridge.pdb" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNativeWebViewBridge.pri" target="lib\uap10.0"/>
-    <file src="..\ReactNative\bin\x64\$configuration$\ReactNativeWebViewBridge.winmd" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNativeWebViewBridge.pdb" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNativeWebViewBridge.pri" target="lib\uap10.0"/>
+    <file src="..\ReactNative\bin\x64\Debug\ReactNativeWebViewBridge.winmd" target="lib\uap10.0"/>
   </files>
 </package>
