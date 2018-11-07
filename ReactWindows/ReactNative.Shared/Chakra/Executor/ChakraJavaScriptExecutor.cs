@@ -240,10 +240,11 @@ namespace ReactNative.Chakra.Executor
             try
             {
                 _context = JavaScriptSourceContext.Increment(_context);
-                #if DEBUG
-                JavaScriptContext.StartDebugging();
-                #endif
-            JavaScriptContext.RunScript(script, _context, sourceUrl);
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    JavaScriptContext.StartDebugging();
+                }
+                JavaScriptContext.RunScript(script, _context, sourceUrl);
             }
             catch (JavaScriptScriptException ex)
             {
