@@ -271,6 +271,15 @@ namespace ReactNative.DevSupport
                                 .GetJavaScriptModule<RCTDeviceEventEmitter>()
                                 .emit("toggleElementInspector", null);
                         }),
+                    new DevOptionHandler(
+                        _devSettings.IsJavaScriptDevModeEnabled
+                            ? "Dev Enabled (switch to Prod)"
+                            : "Prod Enabled (switch to Dev)",
+                        () =>
+                        {
+                            _devSettings.IsJavaScriptDevModeEnabled = !_devSettings.IsJavaScriptDevModeEnabled;
+                            HandleReloadJavaScript();
+                        }),
                 };
 
                 _devOptionsDialogOpen = true;

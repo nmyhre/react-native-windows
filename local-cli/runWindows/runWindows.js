@@ -13,34 +13,48 @@ function runWindows(config, args, options) {
   }
 
   const slnFile = build.getSolutionFile(options);
-  if (!slnFile) {
-    console.error(chalk.red('Visual Studio Solution file not found. Maybe run "react-native windows" first?'));
-    return;
+  if (slnFile === undefined) {
+    console.error(chalk.yellow('Visual Studio Solution file not found. Running packager only.'));
   }
+  else {
+    try {
+      build.restoreNuGetPackages(options, slnFile, options.verbose);
+    } catch (e) {
+      console.error(chalk.red('Failed to restore the NuGet packages'));
+      return;
+    }
 
-  try {
-    build.restoreNuGetPackages(options, slnFile, options.verbose);
-  } catch (e) {
-    console.error(chalk.red('Failed to restore the NuGet packages'));
-    return;
-  }
+    // Get build/deploy options
+    const buildType = options.release ? 'Release' : 'Debug';
 
-  // Get build/deploy options
-  const buildType = options.release ? 'Release' : 'Debug';
-
-  try {
-    build.buildSolution(slnFile, buildType, options.arch, options.verbose);
-  } catch (e) {
-    console.error(chalk.red(`Build failed with message ${e}. Check your build configuration.`));
-    return;
+    try {
+      build.buildSolution(slnFile, buildType, options.arch, options.verbose);
+    } catch (e) {
+      console.error(chalk.red(`Build failed with message ${e}. Check your build configuration.`));
+      return;
+    }
   }
 
   return deploy.startServerInNewWindow(options)
     .then(() => {
-      if (options.device || options.emulator || options.target) {
-        return deploy.deployToDevice(options);
-      } else {
-        return deploy.deployToDesktop(options);
+      if (slnFile !== undefined)
+      {
+        if (options.device || options.emulator || options.target) {
+          return deploy.deployToDevice(options);
+        } else {
+          return deploy.deployToDesktop(options);
+        }
+      }
+      else
+      {
+        return new Promise(resolve => { 
+          // These two are needed only for the VSC plugin to recognize success
+          {
+            console.log(chalk.green('Installing new version of the app'));
+            console.log(chalk.green('Starting the app'));
+          }
+          resolve();
+         });
       }
     })
     .catch(e => console.error(chalk.red(`Failed to deploy: ${e.message}`)));

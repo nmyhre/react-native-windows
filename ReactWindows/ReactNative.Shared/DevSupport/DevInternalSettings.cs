@@ -48,11 +48,7 @@ namespace ReactNative.DevSupport
         {
             get
             {
-#if DEBUG
-                return GetSetting(JsDevModeDebugKey, true);
-#else
-                return GetSetting(JsDevModeDebugKey, false);
-#endif
+                return GetSetting(JsDevModeDebugKey, System.Diagnostics.Debugger.IsAttached);
             }
             set
             {
