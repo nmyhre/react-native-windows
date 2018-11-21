@@ -265,6 +265,20 @@ namespace ReactNative.UIManager
                     }
                 },
                 {
+                    TouchEventType.Wheel.GetJavaScriptEventName(),
+                    new JObject
+                    {
+                        {
+                            "phasedRegistrationNames",
+                            new JObject
+                            {
+                                { "bubbled", "onWheelChanged" },
+                                { "captured", "onWheelChangedCapture" },
+                            }
+                        }
+                    }
+                },
+                {
                     "topFocus",
                     new JObject
                     {
@@ -410,7 +424,7 @@ namespace ReactNative.UIManager
                     {
                         { "registrationName", "onMessage" },
                     }
-                },
+                }
             };
         }
 

@@ -37,7 +37,8 @@ namespace ReactNative.Touch
                 { UIElement.PointerMovedEvent, new PointerEventHandler(OnPointerMoved) },
                 { UIElement.PointerReleasedEvent, new PointerEventHandler(OnPointerReleased) },
                 { UIElement.PointerCanceledEvent, new PointerEventHandler(OnPointerCanceled) },
-                { UIElement.PointerCaptureLostEvent, new PointerEventHandler(OnPointerCaptureLost)}
+                { UIElement.PointerCaptureLostEvent, new PointerEventHandler(OnPointerCaptureLost) },
+                { UIElement.PointerWheelChangedEvent, new PointerEventHandler(OnPointerWheelChanged) },
             };
 
             foreach (KeyValuePair<RoutedEvent, PointerEventHandler> handler in _pointerHandlers)
@@ -160,6 +161,23 @@ namespace ReactNative.Touch
                 }
 
                 _view.ReleasePointerCapture(e.Pointer);
+            }
+        }
+
+        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            var originalSource = e.OriginalSource as DependencyObject;
+            var rootPoint = e.GetCurrentPoint(_view);
+            var transform = ((UIElement)sender).TransformToVisual(Window.Current.Content);
+            Point p = transform.TransformPoint(rootPoint.Position);
+            var reactView = GetReactViewTarget(originalSource, p);
+            if (reactView != null)
+            {
+                int delta = e.GetCurrentPoint(reactView).Properties.MouseWheelDelta;
+                reactView.GetReactContext()
+                    .GetNativeModule<UIManagerModule>()
+                    .EventDispatcher
+                    .DispatchEvent(new PointerWheelChangedEvent(reactView.GetTag(), delta));
             }
         }
 
@@ -433,6 +451,44 @@ namespace ReactNative.Touch
                 {
                     eventEmitter.receiveEvent(ViewTag, enterLeaveEventName, eventData);
                 }
+
+                eventEmitter.receiveEvent(ViewTag, EventName, eventData);
+            }
+        }
+
+        class PointerWheelChangedEvent : Event
+        {
+            private readonly int delta;
+
+            public PointerWheelChangedEvent(int viewTag, int delta)
+                : base(viewTag)
+            {
+                this.delta = delta;
+            }
+
+            public override string EventName
+            {
+                get
+                {
+                    return TouchEventType.Wheel.GetJavaScriptEventName();
+                }
+            }
+
+            public override bool CanCoalesce
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override void Dispatch(RCTEventEmitter eventEmitter)
+            {
+                var eventData = new JObject
+                {
+                    { "target", ViewTag },
+                    { "delta", delta }
+                };
 
                 eventEmitter.receiveEvent(ViewTag, EventName, eventData);
             }
