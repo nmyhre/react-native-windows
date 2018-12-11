@@ -18,10 +18,12 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using Windows.Web.Http.Headers;
 #else
 using PCLStorage;
 using System.Linq;
 using System.Net.Http;
+using HttpMediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 using HttpMultipartFormDataContent = System.Net.Http.MultipartFormDataContent;
 using HttpStreamContent = System.Net.Http.StreamContent;
 using HttpStringContent = System.Net.Http.StringContent;
@@ -150,6 +152,7 @@ namespace ReactNative.Modules.Network
                     _tasks.AddAndInvokeAsync(requestId, token => ProcessRequestFromUriAsync(
                         requestId,
                         new Uri(uri),
+                        headerData,
                         useIncrementalUpdates,
                         timeout,
                         request,
@@ -220,16 +223,18 @@ namespace ReactNative.Modules.Network
         /// <summary>
         /// Called before a <see cref="IReactInstance"/> is disposed.
         /// </summary>
-        public override void OnReactInstanceDispose()
+        public override Task OnReactInstanceDisposeAsync()
         {
             _shuttingDown = true;
             _tasks.CancelAllTasks();
             _client.Dispose();
+            return Task.CompletedTask;
         }
 
         private async Task ProcessRequestFromUriAsync(
             int requestId,
             Uri uri,
+            HttpContentHeaderData headerData,
             bool useIncrementalUpdates,
             int timeout,
             HttpRequestMessage request,
@@ -248,6 +253,8 @@ namespace ReactNative.Modules.Network
                 var inputStream = new MemoryStream(byteArray);
 #endif
                 request.Content = new HttpStreamContent(inputStream);
+                request.Content.Headers.ContentType = new HttpMediaTypeHeaderValue(headerData.ContentType);
+
                 await ProcessRequestAsync(
                     requestId,
                     useIncrementalUpdates,
@@ -417,7 +424,7 @@ namespace ReactNative.Modules.Network
                 requestId,
                 (int)response.StatusCode,
                 headerData,
-                response.RequestMessage.RequestUri.AbsolutePath,
+                response.RequestMessage.RequestUri.AbsoluteUri,
             };
 
             EventEmitter.emit("didReceiveNetworkResponse", args);
@@ -511,7 +518,7 @@ namespace ReactNative.Modules.Network
                 new HttpClient(
                     new HttpBaseProtocolFilter
                     {
-                        AllowAutoRedirect = false,
+                        AllowAutoRedirect = true,
                     }));
         }
     }

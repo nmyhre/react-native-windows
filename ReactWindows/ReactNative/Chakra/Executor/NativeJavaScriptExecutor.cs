@@ -4,6 +4,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReactNative.Bridge;
+using ReactNative.Common;
+using ReactNative.Tracing;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,6 +22,14 @@ namespace ReactNative.Chakra.Executor
 
         private readonly ChakraBridge.NativeJavaScriptExecutor _executor;
         private readonly bool _useSerialization;
+
+        /// <summary>
+        /// Initializes the hooking of JS logging to RnLog.
+        /// </summary>
+        static public void StartRnLogging()
+        {
+            ChakraBridge.NativeJavaScriptExecutor.OnNewLogLine += JsExecutorOnNewLogLine;
+        }
 
         /// <summary>
         /// Instantiates the <see cref="NativeJavaScriptExecutor"/>.
@@ -39,6 +49,29 @@ namespace ReactNative.Chakra.Executor
             _executor = new ChakraBridge.NativeJavaScriptExecutor();
             Native.ThrowIfError((JavaScriptErrorCode)_executor.InitializeHost());
             _useSerialization = useSerialization;
+        }
+
+        private static void JsExecutorOnNewLogLine(ChakraBridge.LogLevel logLevel, string logline)
+        {
+            // ChakraBridge.LogLevel value is lost when it gets marshaled to .Net native optimized code,
+            // we need to do a proper marshaling to get actual value
+            // Also, JavaScript already has a log level in the message, hence just RnLog.Info
+            string tag = "JS";
+            FormattableString message = $"{logline}";
+
+            switch (logLevel)
+            {
+                case ChakraBridge.LogLevel.Error:
+                    RnLog.Error(tag, message);
+                    break;
+                case ChakraBridge.LogLevel.Warning:
+                    RnLog.Warn(tag, message);
+                    break;
+                case ChakraBridge.LogLevel.Info:
+                case ChakraBridge.LogLevel.Trace:
+                    RnLog.Info(tag, message);
+                    break;
+            }
         }
 
         /// <summary>
@@ -119,14 +152,39 @@ namespace ReactNative.Chakra.Executor
                     var srcFileInfo = new FileInfo(sourcePath);
                     var binFileInfo = new FileInfo(binPath);
 
+                    bool ranSuccessfully = false;
                     // The idea is to run the JS bundle and generate bytecode for it on a background thread.
                     // This eliminates the need to delay the first start when the app doesn't have bytecode.
                     // Next time the app starts, it checks if bytecode is still good and  runs it directly.
                     if (binFileInfo.Exists && binFileInfo.LastWriteTime > srcFileInfo.LastWriteTime)
                     {
-                        Native.ThrowIfError((JavaScriptErrorCode)_executor.RunSerializedScript(sourcePath, binPath, sourceUrl));
+                        try
+                        {
+                            Native.ThrowIfError((JavaScriptErrorCode)_executor.RunSerializedScript(sourcePath, binPath, sourceUrl));
+                            ranSuccessfully = true;
+                        }
+                        catch (JavaScriptUsageException exc)
+                        {
+                            if (exc.ErrorCode == JavaScriptErrorCode.BadSerializedScript)
+                            {
+                                // Bytecode format is dependent on Chakra engine version, so an OS upgrade may require a recompilation
+                                RnLog.Warn(ReactConstants.RNW, $"Serialized bytecode script is corrupted or wrong format, will generate new one");
+                            }
+                            else
+                            {
+                                // Some more severe error. We still have a chance (recompiling), so we keep continuing.
+                                RnLog.Error(ReactConstants.RNW, exc, $"Failed to run serialized bytecode script, will generate new one");
+                            }
+
+                            File.Delete(binPath);
+                        }
                     }
                     else
+                    {
+                        RnLog.Info(ReactConstants.RNW, $"Serialized bytecode script doesn't exist or is obsolete, will generate one");
+                    }
+
+                    if (!ranSuccessfully)
                     {
                         Task.Run(() =>
                         {
@@ -141,8 +199,9 @@ namespace ReactNative.Chakra.Executor
                                 Native.ThrowIfError((JavaScriptErrorCode)rt.SerializeScript(sourcePath, binPath));
                                 Native.ThrowIfError((JavaScriptErrorCode)rt.DisposeHost());
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                RnLog.Error(ReactConstants.RNW, ex, $"Failed to generate serialized bytecode script.");
                                 // It's fine if the bytecode couldn't be generated: RN can still use the JS bundle.
                             }
                         });
@@ -165,6 +224,19 @@ namespace ReactNative.Chakra.Executor
         }
 
         /// <summary>
+        /// Set a callback for flushing the queue immediately.
+        /// </summary>
+        /// <param name="flushQueueImmediate">The callback.</param>
+        public void SetFlushQueueImmediate(Action<JToken> flushQueueImmediate)
+        {
+            if (flushQueueImmediate == null)
+                throw new ArgumentNullException(nameof(flushQueueImmediate));
+
+            _executor.SetFlushQueueImmediate(args =>
+                flushQueueImmediate(JToken.Parse(args)));
+        }
+
+        /// <summary>
         /// Sets a callback for synchronous native methods.
         /// </summary>
         /// <param name="callSyncHook">The sync hook for native methods.</param>
@@ -174,7 +246,7 @@ namespace ReactNative.Chakra.Executor
                 throw new ArgumentNullException(nameof(callSyncHook));
 
             _executor.SetCallSyncHook((moduleId, methodId, args) =>
-                callSyncHook(moduleId, methodId, JArray.Parse(args)).ToString(Formatting.None));
+                callSyncHook(moduleId, methodId, JArray.Parse(args))?.ToString(Formatting.None) ?? "null");
         }
 
         /// <summary>

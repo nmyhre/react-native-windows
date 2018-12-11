@@ -268,12 +268,20 @@ namespace ReactNative.UIManager
                     TouchEventType.Wheel.GetJavaScriptEventName(),
                     new JObject
                     {
+                        { "bubbled", "onWheelChanged" },
+                        { "captured", "onWheelChangedCapture" },
+                    }
+                },
+                {
+                    TouchEventType.PointerMove.GetJavaScriptEventName(),
+                    new JObject
+                    {
                         {
                             "phasedRegistrationNames",
                             new JObject
                             {
-                                { "bubbled", "onWheelChanged" },
-                                { "captured", "onWheelChangedCapture" },
+                                { "bubbled", "onMouseMove" },
+                                { "captured", "onMouseMoveCapture" },
                             }
                         }
                     }

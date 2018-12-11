@@ -38,7 +38,7 @@ namespace ReactNative.UIManager
 
         private readonly NativeViewHierarchyManager _nativeViewHierarchyManager;
         private readonly ReactContext _reactContext;
-        private readonly ReactChoreographer _reactChoreographer;
+        private readonly IReactChoreographer _reactChoreographer;
 
         private readonly IList<Action> _nonBatchedOperations = new List<Action>();
 
@@ -55,7 +55,7 @@ namespace ReactNative.UIManager
         /// <param name="reactChoreographer">
         /// The choreographer associated with this instance.
         /// </param>
-        public UIViewOperationQueueInstance(ReactContext reactContext, NativeViewHierarchyManager nativeViewHierarchyManager, ReactChoreographer reactChoreographer)
+        public UIViewOperationQueueInstance(ReactContext reactContext, NativeViewHierarchyManager nativeViewHierarchyManager, IReactChoreographer reactChoreographer)
         {
             _nativeViewHierarchyManager = nativeViewHierarchyManager;
             _reactContext = reactContext;
@@ -118,6 +118,14 @@ namespace ReactNative.UIManager
         public void EnqueueRemoveRootView(int rootViewTag)
         {
             EnqueueOperation(() => _nativeViewHierarchyManager.RemoveRootView(rootViewTag));
+        }
+
+        /// <summary>
+        /// Refreshes RTL/LTR direction on all root views.
+        /// </summary>
+        public void UpdateRootViewNodesDirection()
+        {
+            EnqueueOperation(() => _nativeViewHierarchyManager.UpdateRootViewNodesDirection());
         }
 
         /// <summary>
@@ -404,7 +412,11 @@ namespace ReactNative.UIManager
             // Must be called in the context of the dispatcher thread corresponding to this queue
             _reactChoreographer.DispatchUICallback -= OnRenderingSafe;
 
-            (_reactChoreographer as IDisposable).Dispose();
+            // Don't dispose main choreographer, there's a great chance it will be reused
+            if (!_reactChoreographer.IsMainChoreographer())
+            {
+                (_reactChoreographer as IDisposable).Dispose();
+            }
         }
 
         /// <summary>
