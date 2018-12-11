@@ -45,5 +45,8 @@ namespace ReactNative.UIManager.Events
         /// Pointer wheel changed event type
         /// </summary>
         Wheel,
+        /// Pointer move event type.
+        /// </summary>
+        PointerMove
     }
 }

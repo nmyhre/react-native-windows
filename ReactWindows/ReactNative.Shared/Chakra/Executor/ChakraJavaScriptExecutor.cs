@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReactNative.Bridge;
 using ReactNative.Common;
+using ReactNative.Tracing;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -33,12 +34,14 @@ namespace ReactNative.Chakra.Executor
         private JavaScriptNativeFunction _nativeLoggingHook;
         private JavaScriptNativeFunction _nativeRequire;
         private JavaScriptNativeFunction _nativeCallSyncHook;
+        private JavaScriptNativeFunction _nativeFlushQueueImmediate;
 
         private JavaScriptValue _globalObject;
 
         private JavaScriptValue _callFunctionAndReturnFlushedQueueFunction;
         private JavaScriptValue _invokeCallbackAndReturnFlushedQueueFunction;
         private JavaScriptValue _flushedQueueFunction;
+        private JavaScriptValue _fbBatchedBridge;
 
 #if !NATIVE_JSON_MARSHALING
         private JavaScriptValue _parseFunction;
@@ -46,6 +49,7 @@ namespace ReactNative.Chakra.Executor
 #endif
 
         private Func<int, int, JArray, JToken> _callSyncHook;
+        private Action<JToken> _flushQueueImmediate;
 
         /// <summary>
         /// Instantiates the <see cref="ChakraJavaScriptExecutor"/>.
@@ -210,12 +214,22 @@ namespace ReactNative.Chakra.Executor
         }
 
         /// <summary>
+        /// Sets a callback for immediate queue flushes.
+        /// </summary>
+        /// <param name="flushQueueImmediate">The callback.</param>
+        public void SetFlushQueueImmediate(Action<JToken> flushQueueImmediate)
+        {
+            _flushQueueImmediate = flushQueueImmediate;
+        }
+
+        /// <summary>
         /// Disposes the <see cref="ChakraJavaScriptExecutor"/> instance.
         /// </summary>
         public void Dispose()
         {
             JavaScriptContext.Current = JavaScriptContext.Invalid;
             _runtime.Dispose();
+            _unbundle?.Dispose();
         }
 
         private void InitializeChakra()
@@ -232,6 +246,12 @@ namespace ReactNative.Chakra.Executor
             EnsureGlobalObject().SetProperty(
                 JavaScriptPropertyId.FromString("nativeCallSyncHook"),
                 JavaScriptValue.CreateFunction(_nativeCallSyncHook),
+                true);
+
+            _nativeFlushQueueImmediate = NativeFlushQueueImmediate;
+            EnsureGlobalObject().SetProperty(
+                JavaScriptPropertyId.FromString("nativeFlushQueueImmediate"),
+                JavaScriptValue.CreateFunction(_nativeFlushQueueImmediate),
                 true);
         }
 
@@ -270,7 +290,7 @@ namespace ReactNative.Chakra.Executor
 #else
         private JavaScriptValue ConvertJson(JToken token)
         {
-            var jsonString = token.ToString(Formatting.None);
+            var jsonString = token?.ToString(Formatting.None) ?? "null";
             return ConvertJson(jsonString);
         }
 
@@ -309,12 +329,36 @@ namespace ReactNative.Chakra.Executor
             {
                 var message = arguments[1].ToString();
                 var logLevel = (LogLevel)(int)arguments[2].ToDouble();
-                Debug.WriteLine($"[JS {logLevel}] {message}");
+                RnLog.Info("JS", $"{logLevel} {message}");
             }
             catch
             {
-                Debug.WriteLine("Unable to process JavaScript console statement");
+                RnLog.Error("JS", $"Unable to process JavaScript console statement");
             }
+
+            return JavaScriptValue.Undefined;
+        }
+        #endregion
+
+        #region Native Flush Queue Immediate Hook
+        private JavaScriptValue NativeFlushQueueImmediate(
+            JavaScriptValue callee,
+            bool isConstructCall,
+            JavaScriptValue[] arguments,
+            ushort argumentCount,
+            IntPtr callbackData)
+        {
+            if (argumentCount != 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(argumentCount), "Expected exactly two arguments (global, flushedQueue)");
+            }
+
+            if (_flushQueueImmediate == null)
+            {
+                throw new InvalidOperationException("Callback hook for `nativeFlushQueueImmediate` has not been set.");
+            }
+
+            _flushQueueImmediate(ConvertJson(arguments[1]));
 
             return JavaScriptValue.Undefined;
         }
@@ -408,16 +452,21 @@ namespace ReactNative.Chakra.Executor
 
         private JavaScriptValue EnsureBatchedBridge()
         {
-            var globalObject = EnsureGlobalObject();
-            var propertyId = JavaScriptPropertyId.FromString(FBBatchedBridgeVariableName);
-            var fbBatchedBridge = globalObject.GetProperty(propertyId);
-            if (fbBatchedBridge.ValueType != JavaScriptValueType.Object)
+            if (!_fbBatchedBridge.IsValid)
             {
-                throw new InvalidOperationException(
-                    Invariant($"Could not resolve '{FBBatchedBridgeVariableName}' object.  Check the JavaScript bundle to ensure it is generated correctly."));
+                var globalObject = EnsureGlobalObject();
+                var propertyId = JavaScriptPropertyId.FromString(FBBatchedBridgeVariableName);
+                var fbBatchedBridge = globalObject.GetProperty(propertyId);
+                if (fbBatchedBridge.ValueType != JavaScriptValueType.Object)
+                {
+                    throw new InvalidOperationException(
+                        Invariant($"Could not resolve '{FBBatchedBridgeVariableName}' object.  Check the JavaScript bundle to ensure it is generated correctly."));
+                }
+
+                _fbBatchedBridge = fbBatchedBridge;
             }
 
-            return fbBatchedBridge;
+            return _fbBatchedBridge;
         }
 
         private JavaScriptValue EnsureStringifyFunction()
