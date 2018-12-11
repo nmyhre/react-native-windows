@@ -56,6 +56,8 @@
   "dependencies": {
     "chalk": "^1.1.1",
     "glob": "^7.1.1",
+    "jest-serializer": "^23.0.1",
+    "scheduler": "^0.11.3",
     "shelljs": "^0.7.8",
     "username": "^3.0.0",
     "uuid": "^2.0.1",
@@ -65,8 +67,12 @@
   },
   "rnpm": {
     "haste": {
-      "platforms": ["windows"],
-      "providesModuleNodeModules": ["react-native-windows"]
+      "platforms": [
+        "windows"
+      ],
+      "providesModuleNodeModules": [
+        "react-native-windows"
+      ]
     },
     "plugin": "./local-cli/index.js",
     "platform": "./local-cli/platform.js"
