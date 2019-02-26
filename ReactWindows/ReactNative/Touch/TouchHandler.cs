@@ -173,10 +173,10 @@ namespace ReactNative.Touch
             var rootPoint = e.GetCurrentPoint(_view);
             var transform = ((UIElement)sender).TransformToVisual(Window.Current.Content);
             Point p = transform.TransformPoint(rootPoint.Position);
-            var reactView = GetReactViewTarget(originalSource, p);
+            var reactView = GetReactViewTarget(e);
             if (reactView != null)
             {
-                int delta = e.GetCurrentPoint(reactView).Properties.MouseWheelDelta;
+                int delta = e.GetCurrentPoint(reactView.As<UIElement>()).Properties.MouseWheelDelta;
                 reactView.GetReactContext()
                     .GetNativeModule<UIManagerModule>()
                     .EventDispatcher
