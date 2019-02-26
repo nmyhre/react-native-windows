@@ -450,12 +450,6 @@ namespace ReactNative.UIManager
             {
                 if (IsDelegatedLayout)
                 {
-                    if (!_hasChildLayoutChanged)
-                    {
-                        // We cache the "changed" value from the child Yoga node so we can mark
-                        // the current shadow node as seen separately from the child.
-                        _hasChildLayoutChanged = _yogaNode?.HasNewLayout ?? false;
-                    }
                     return _hasChildLayoutChanged;
                 }
                 return _yogaNode?.HasNewLayout ?? false;
@@ -821,7 +815,7 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="child">The child.</param>
         /// <param name="index">The index.</param>
-        public void AddChildAt(ReactShadowNode child, int index)
+        public virtual void AddChildAt(ReactShadowNode child, int index)
         {
             if (child._parent != null)
             {
@@ -1299,6 +1293,16 @@ namespace ReactNative.UIManager
             parent?.MarkUpdated();
         }
 
+        internal void BeforeDispatchUpdatesToDescendants()
+        {
+            if (IsDelegatedLayout)
+            {
+                // We cache the "changed" value from the child Yoga node so we can mark
+                // the current shadow node as seen separately from the child.
+                _hasChildLayoutChanged = _yogaNode?.HasNewLayout ?? false;
+            }
+        }
+
         private void UpdateNativeChildrenCountInParent(int delta)
         {
             if (_isLayoutOnly)
@@ -1330,10 +1334,7 @@ namespace ReactNative.UIManager
                         YogaConstants.IsUndefined(_padding.GetRaw(EdgeSpacing.All)))
                     {
                         SetPadding(_yogaNode, spacingType, _defaultPadding.GetRaw(spacingType));
-                    }
-                    else
-                    {
-                        SetPadding(_yogaNode, spacingType, _padding.GetRaw(spacingType));
+                        continue;
                     }
                 }
                 else if (spacingType == EdgeSpacing.Top || spacingType == EdgeSpacing.Bottom)
@@ -1343,10 +1344,7 @@ namespace ReactNative.UIManager
                         YogaConstants.IsUndefined(_padding.GetRaw(EdgeSpacing.All)))
                     {
                         SetPadding(_yogaNode, spacingType, _defaultPadding.GetRaw(spacingType));
-                    }
-                    else
-                    {
-                        SetPadding(_yogaNode, spacingType, _padding.GetRaw(spacingType));
+                        continue;
                     }
                 }
                 else
@@ -1354,12 +1352,11 @@ namespace ReactNative.UIManager
                     if (YogaConstants.IsUndefined(_padding.GetRaw(spacingType)))
                     {
                         SetPadding(_yogaNode, spacingType, _defaultPadding.GetRaw(spacingType));
-                    }
-                    else
-                    {
-                        SetPadding(_yogaNode, spacingType, _padding.GetRaw(spacingType));
+                        continue;
                     }
                 }
+
+                SetPadding(_yogaNode, spacingType, _padding.GetRaw(spacingType));
             }
         }
 

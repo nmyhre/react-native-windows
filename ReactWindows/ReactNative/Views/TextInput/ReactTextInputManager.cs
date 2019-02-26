@@ -222,6 +222,10 @@ namespace ReactNative.Views.TextInput
         [ReactProp("selection")]
         public void SetSelection(ReactTextBox view, JObject selection)
         {
+            if (selection == null) {
+                return;
+            }
+
             var start = selection.Value<int>("start");
             var textLength = view.Text?.Length ?? 0;
             var normalizedStart = Math.Min(start, textLength);
@@ -274,7 +278,7 @@ namespace ReactNative.Views.TextInput
         /// </summary>
         /// <param name="view">The view instance</param>
         /// <param name="color">The masked color value.</param>
-        [ReactProp("borderColor", CustomType = "Color")]
+        [ReactProp(ViewProps.BorderColor, CustomType = "Color")]
         public void SetBorderColor(ReactTextBox view, uint? color)
         {
             if (color.HasValue)
@@ -340,7 +344,7 @@ namespace ReactNative.Views.TextInput
         {
             view.TextAlignment = EnumHelpers.Parse<TextAlignment>(alignment);
         }
- 
+
         /// <summary>
         /// Sets the text alignment prop on the <see cref="ReactTextBox"/>.
         /// </summary>
@@ -486,7 +490,7 @@ namespace ReactNative.Views.TextInput
         {
             view.MaxHeight = height;
         }
-    
+
         /// <summary>
         /// Sets whether the view is a tab stop.
         /// </summary>
@@ -494,7 +498,6 @@ namespace ReactNative.Views.TextInput
         /// <param name="isTabStop">
         /// <code>true</code> if the view is a tab stop, otherwise <code>false</code> (control can't get keyboard focus or accept keyboard input in this case).
         /// </param>
-        /// 
         [ReactProp("isTabStop")]
         public void SetIsTabStop(ReactTextBox view, bool isTabStop)
         {
@@ -517,11 +520,22 @@ namespace ReactNative.Views.TextInput
         /// </summary>
         /// <param name="view">The view.</param>
         /// <param name="importantForAccessibilityValue">The string to be parsed as <see cref="ImportantForAccessibility"/>.</param>
-        [ReactProp("importantForAccessibility")]
+        [ReactProp(ViewProps.ImportantForAccessibility)]
         public void SetImportantForAccessibility(ReactTextBox view, string importantForAccessibilityValue)
         {
             var importantForAccessibility = EnumHelpers.ParseNullable<ImportantForAccessibility>(importantForAccessibilityValue) ?? ImportantForAccessibility.Auto;
             AccessibilityHelper.SetImportantForAccessibility(view, importantForAccessibility);
+        }
+
+        /// <summary>
+        /// Controls the visibility of the DeleteButton.
+        /// </summary>
+        /// <param name="view">The view instance.</param>
+        /// <param name="clearButtonMode">Visibility of the DeleteButton.</param>
+        [ReactProp("clearButtonMode")]
+        public void SetClearButtonMode(ReactTextBox view, string clearButtonMode)
+        {
+            view.ClearButtonMode = EnumHelpers.ParseNullable<ClearButtonModeType>(clearButtonMode) ?? ClearButtonModeType.Default;
         }
 
         /// <summary>
@@ -580,7 +594,7 @@ namespace ReactNative.Views.TextInput
                 {
                     return;
                 }
-                
+
                 view.TextChanging -= OnTextChanging;
                 view.TextChanged -= OnTextChanged;
 
@@ -733,7 +747,7 @@ namespace ReactNative.Views.TextInput
                       textBox.GetTag(),
                       textBox.Text));
         }
-        
+
         private void OnKeyDown(object sender, KeyRoutedEventArgs e)
         {
             var textBox = (ReactTextBox)sender;

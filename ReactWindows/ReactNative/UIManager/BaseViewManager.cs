@@ -6,11 +6,12 @@
 using Newtonsoft.Json.Linq;
 using ReactNative.Accessibility;
 using ReactNative.Reflection;
-using ReactNative.Touch;
 using ReactNative.UIManager.Annotations;
+using ReactNative.UIManager.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
@@ -33,8 +34,8 @@ namespace ReactNative.UIManager
         where TFrameworkElement : FrameworkElement
         where TLayoutShadowNode : LayoutShadowNode
     {
-        private readonly ConcurrentDictionary<TFrameworkElement, DimensionBoundProperties> _dimensionBoundProperties =
-            new ConcurrentDictionary<TFrameworkElement, DimensionBoundProperties>();
+        private readonly ViewKeyedDictionary<TFrameworkElement, DimensionBoundProperties> _dimensionBoundProperties =
+            new ViewKeyedDictionary<TFrameworkElement, DimensionBoundProperties>();
 
         /// <summary>
         /// Sets the 3D tranform on the <typeparamref name="TFrameworkElement"/>.
@@ -70,7 +71,7 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="view">The view instance.</param>
         /// <param name="opacity">The opacity value.</param>
-        [ReactProp("opacity", DefaultDouble = 1.0)]
+        [ReactProp(ViewProps.Opacity, DefaultDouble = 1.0)]
         public void SetOpacity(TFrameworkElement view, double opacity)
         {
             view.Opacity = opacity;
@@ -81,10 +82,10 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="view">The view instance.</param>
         /// <param name="overflow">The overflow value.</param>
-        [ReactProp("overflow")]
+        [ReactProp(ViewProps.Overflow)]
         public void SetOverflow(TFrameworkElement view, string overflow)
         {
-            if (overflow == "hidden")
+            if (overflow == ViewProps.Hidden)
             {
                 var dimensionBoundProperties = GetOrCreateDimensionBoundProperties(view);
                 dimensionBoundProperties.OverflowHidden = true;
@@ -124,6 +125,7 @@ namespace ReactNative.UIManager
         public void SetDisplay(TFrameworkElement view, string display)
         {
             view.Visibility = display == "none" ? Visibility.Collapsed : Visibility.Visible;
+            AccessibilityHelper.OnElementChanged(view, UIElement.VisibilityProperty);
         }
 
         /// <summary>
@@ -150,13 +152,13 @@ namespace ReactNative.UIManager
 
             view.ManipulationMode = manipulationMode;
         }
-        
+
         /// <summary>
         /// Sets the accessibility label of the element.
         /// </summary>
         /// <param name="view">The view instance.</param>
         /// <param name="label">The label.</param>
-        [ReactProp("accessibilityLabel")]
+        [ReactProp(ViewProps.AccessibilityLabel)]
         public void SetAccessibilityLabel(TFrameworkElement view, string label)
         {
             AccessibilityHelper.SetAccessibilityLabel(view, label ?? "");
@@ -167,7 +169,7 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="view">The view instance.</param>
         /// <param name="liveRegion">The live region.</param>
-        [ReactProp("accessibilityLiveRegion")]
+        [ReactProp(ViewProps.AccessibilityLiveRegion)]
         public void SetAccessibilityLiveRegion(TFrameworkElement view, string liveRegion)
         {
             var liveSetting = AutomationLiveSetting.Off;
@@ -182,6 +184,7 @@ namespace ReactNative.UIManager
             }
 
             AutomationProperties.SetLiveSetting(view, liveSetting);
+            AccessibilityHelper.AnnounceIfNeeded(view);
         }
 
         /// <summary>
@@ -207,20 +210,54 @@ namespace ReactNative.UIManager
         }
 
         /// <summary>
-        /// Called when view is detached from view hierarchy and allows for 
+        /// Set the pointer events handling mode for the view.
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <param name="pointerEventsValue">The pointerEvents mode.</param>
+        [ReactProp(ViewProps.PointerEvents)]
+        public void SetPointerEvents(TFrameworkElement view, string pointerEventsValue)
+        {
+            var pointerEvents = EnumHelpers.ParseNullable<PointerEvents>(pointerEventsValue) ?? PointerEvents.Auto;
+            view.SetPointerEvents(pointerEvents);
+
+            // When `pointerEvents: none`, set `IsHitTestVisible` to `false`.
+            view.IsHitTestVisible = pointerEvents != PointerEvents.None;
+        }
+
+        /// <summary>
+        /// Detects the presence of a various mouse view handler for the view.
+        /// </summary>
+        /// <param name="view">The view instance.</param>
+        /// <param name="index">The prop index.</param>
+        /// <param name="handlerPresent">true if a mouse move handler is present.</param>
+        [ReactPropGroup(
+            "onMouseMove",
+            "onMouseMoveCapture",
+            "onMouseOver",
+            "onMouseOverCapture",
+            "onMouseOut",
+            "onMouseOutCapture",
+            "onMouseEnter",
+            "onMouseLeave")]
+        public void SetOnMouseHandler(TFrameworkElement view, int index, bool handlerPresent)
+        {
+            // The order of handler names HAS TO match order in ViewExtensions.MouseHandlerMask
+            view.SetMouseHandlerPresent((ViewExtensions.MouseHandlerMask)(1 << index), handlerPresent);
+        }
+
+        /// <summary>
+        /// Called when view is detached from view hierarchy and allows for
         /// additional cleanup by the <see cref="IViewManager"/> subclass.
         /// </summary>
         /// <param name="reactContext">The React context.</param>
         /// <param name="view">The view.</param>
         /// <remarks>
-        /// Be sure to call this base class method to register for pointer 
+        /// Be sure to call this base class method to register for pointer
         /// entered and pointer exited events.
         /// </remarks>
         public override void OnDropViewInstance(ThemedReactContext reactContext, TFrameworkElement view)
         {
-            view.PointerEntered -= OnPointerEntered;
-            view.PointerExited -= OnPointerExited;
-            _dimensionBoundProperties.TryRemove(view, out _);
+            _dimensionBoundProperties.Remove(view);
         }
 
         /// <summary>
@@ -252,25 +289,6 @@ namespace ReactNative.UIManager
             }
         }
 
-        /// <summary>
-        /// Subclasses can override this method to install custom event 
-        /// emitters on the given view.
-        /// </summary>
-        /// <param name="reactContext">The React context.</param>
-        /// <param name="view">The view instance.</param>
-        /// <remarks>
-        /// Consider overriding this method if your view needs to emit events
-        /// besides basic touch events to JavaScript (e.g., scroll events).
-        /// 
-        /// Make sure you call the base implementation to ensure base pointer
-        /// event handlers are subscribed.
-        /// </remarks>
-        protected override void AddEventEmitters(ThemedReactContext reactContext, TFrameworkElement view)
-        {
-            view.PointerEntered += OnPointerEntered;
-            view.PointerExited += OnPointerExited;
-        }
-
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var view = (TFrameworkElement)sender;
@@ -278,18 +296,6 @@ namespace ReactNative.UIManager
             {
                 Rect = new Rect(0, 0, e.NewSize.Width, e.NewSize.Height),
             };
-        }
-
-        private void OnPointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            var view = (TFrameworkElement)sender;
-            TouchHandler.OnPointerEntered(view, e);
-        }
-
-        private void OnPointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            var view = (TFrameworkElement)sender;
-            TouchHandler.OnPointerExited(view, e);
         }
 
         private DimensionBoundProperties GetDimensionBoundProperties(TFrameworkElement view)
@@ -307,7 +313,7 @@ namespace ReactNative.UIManager
             if (!_dimensionBoundProperties.TryGetValue(view, out var properties))
             {
                 properties = new DimensionBoundProperties();
-                _dimensionBoundProperties.AddOrUpdate(view, properties, (k, v) => properties);
+                _dimensionBoundProperties.AddOrUpdate(view, properties);
             }
 
             return properties;
